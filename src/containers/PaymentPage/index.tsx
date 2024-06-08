@@ -1,4 +1,3 @@
-import { SHIPPING_FEE } from '@appConfig/constants';
 import { IMAGES } from '@appConfig/images';
 import { PATHS } from '@appConfig/paths';
 import { COLOR_CODE, DialogContext, DialogType, Image, MuiInput, MuiTextField } from '@components';
@@ -23,6 +22,7 @@ import {
   ProductStoresType,
   useCreateOrder,
   useDeleteCart,
+  useGetAllStores,
   useGetCart,
   useGetProfile,
 } from '@queries';
@@ -36,7 +36,7 @@ import {
 } from '@shared';
 import { getDatabase, ref, set } from 'firebase/database';
 import { useFormik } from 'formik';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { BsArrowLeft, BsCashCoin } from 'react-icons/bs';
 import { IoCheckmarkCircle } from 'react-icons/io5';
 import { MdOutlineRadioButtonChecked } from 'react-icons/md';
@@ -47,15 +47,18 @@ import { firebaseApp } from 'src/firebase';
 import { OrderSummary } from './components';
 import { initialOrderFormValues, orderFormValidationSchema } from './helpers';
 import { OrderFormFields, OrderFormFieldsType } from './type';
+import { getDistanceFromLatLonInKm, getLocationByGoogleMap } from '@customerShared';
 
 const PaymentPage = () => {
   const isMobileScreen = useMediaQuery('(max-width: 767px)');
+  const { stores } = useGetAllStores(); 
 
   const navigate = useNavigate();
 
   const { openModal, closeModal, setDialogContent } = useContext(DialogContext);
 
   const { selectedVoucherId, setSelectedVoucherId } = useContext(VoucherContext);
+  const [shippingCost, setShippingCost] = useState(0);
 
   const { profile } = useGetProfile({
     onErrorCallback: (error) => Toastify.error(error?.message),
@@ -151,13 +154,13 @@ const PaymentPage = () => {
         },
         productStores: cart?.flatMap((itemInCart) => getProductStore(itemInCart)),
         voucherId: selectedVoucherId,
-        shippingFee: SHIPPING_FEE,
+        shippingFee: shippingCost,
         paymentMethod: paymentMethod,
       });
     }
   };
 
-  const { values, errors, touched, getFieldProps, setFieldValue, handleSubmit } =
+  const { values, errors, touched, getFieldProps, setFieldValue, handleSubmit, handleChange } =
     useFormik<OrderFormFieldsType>({
       initialValues: getInitialOrderFormValues,
       onSubmit: () => {
@@ -168,6 +171,22 @@ const PaymentPage = () => {
 
   const getFieldErrorMessage = (fieldName: string) =>
     getErrorMessage(fieldName, { touched, errors });
+
+  const handleCalculateShippingCost = (distance) => {
+    const cost = 5000 + (distance * 2000);
+    setShippingCost(Math.ceil(cost));
+  };
+
+  const handleShippingAddressChange = async (event) => {
+    const newAddress = event.target.value;
+    const prevAddress = values.shippingAddress;
+    if (newAddress !== prevAddress) {
+      const store = stores.find((x) => x.id === StoreService.getValue());
+      const shippingAddress = await getLocationByGoogleMap(newAddress);
+      const calculatedDistance = getDistanceFromLatLonInKm(store['latitude'],store['longitude'],shippingAddress.lat,shippingAddress.lng);
+      handleCalculateShippingCost(calculatedDistance);
+    }
+  };
 
   const renderCustomerInfo = () => {
     return (
@@ -229,6 +248,10 @@ const PaymentPage = () => {
                     placeholder="Shipping address"
                     errorMessage={getFieldErrorMessage(OrderFormFields.SHIPPING_ADDRESS)}
                     {...getFieldProps(OrderFormFields.SHIPPING_ADDRESS)}
+                    onChange={(e) => {
+                      handleChange(e);
+                      handleShippingAddressChange(e);
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -271,7 +294,7 @@ const PaymentPage = () => {
                           style={{ color: COLOR_CODE.PRIMARY_500, marginRight: '8px' }}
                         />
                       ),
-                      endAdornment: formatMoney(SHIPPING_FEE),
+                      endAdornment: formatMoney(shippingCost),
                     }}
                   />
                 </Grid>
@@ -311,11 +334,10 @@ const PaymentPage = () => {
                     alignItems="center"
                     gap={2}
                     sx={{
-                      border: `1.5px solid ${
-                        values?.paymentMethod === PaymentMethod.COD
+                      border: `1.5px solid ${values?.paymentMethod === PaymentMethod.COD
                           ? COLOR_CODE.PRIMARY_500
                           : COLOR_CODE.GREY_300
-                      }`,
+                        }`,
                       borderRadius: '20px',
                     }}
                     component="button"
@@ -354,11 +376,10 @@ const PaymentPage = () => {
                     alignItems="center"
                     gap={2}
                     sx={{
-                      border: `1.5px solid ${
-                        values?.paymentMethod === PaymentMethod.BANKING
+                      border: `1.5px solid ${values?.paymentMethod === PaymentMethod.BANKING
                           ? COLOR_CODE.PRIMARY_500
                           : COLOR_CODE.GREY_300
-                      }`,
+                        }`,
                       borderRadius: '20px',
                     }}
                     component="button"
@@ -425,7 +446,7 @@ const PaymentPage = () => {
                 {renderShippingOption()}
                 {renderPaymentOption()}
               </Stack>
-              <OrderSummary isDisabled={isEmpty(cart) || isCartContainOutOfStockProduct} />
+              <OrderSummary isDisabled={isEmpty(cart) || isCartContainOutOfStockProduct} shippingCost={shippingCost}/>
             </Stack>
           </Stack>
         </form>

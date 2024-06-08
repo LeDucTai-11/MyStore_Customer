@@ -12,6 +12,9 @@ const configs = {
   FIREBASE_APP_ID: import.meta.env.VITE_FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
   FIREBASE_MESSAGE_TOKEN: import.meta.env.VITE_FIREBASE_MESSAGE_TOKEN,
+
+  // Google map API Key
+  GOOGLE_MAPS_API_KEY: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
 };
 
 const table = {

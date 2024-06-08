@@ -1,4 +1,3 @@
-import { SHIPPING_FEE } from '@appConfig/constants';
 import { COLOR_CODE, DialogContext, DialogType } from '@components';
 import {
   Button,
@@ -19,9 +18,10 @@ import { VoucherContext } from 'src/context';
 
 type Props = {
   isDisabled: boolean;
+  shippingCost: number;
 };
 
-const OrderSummary = ({ isDisabled }: Props) => {
+const OrderSummary = ({ isDisabled, shippingCost}: Props) => {
   const isMobileScreen = useMediaQuery('(max-width: 767px)');
 
   const { setDialogContent, openModal } = useContext(DialogContext);
@@ -53,9 +53,9 @@ const OrderSummary = ({ isDisabled }: Props) => {
   };
 
   const total = useMemo(
-    () => subTotal + SHIPPING_FEE - getDiscount(selectedVoucher),
+    () => subTotal + shippingCost - getDiscount(selectedVoucher),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedVoucher, subTotal],
+    [selectedVoucher, subTotal, shippingCost],
   );
 
   const handleOpenVoucherDialog = useCallback((subTotal) => {
@@ -88,7 +88,7 @@ const OrderSummary = ({ isDisabled }: Props) => {
         <Divider />
         <Stack flexDirection="row" justifyContent="space-between" alignItems="center">
           <Typography>Shipping fee</Typography>
-          <Typography>{formatMoney(SHIPPING_FEE)}</Typography>
+          <Typography>{formatMoney(shippingCost)}</Typography>
         </Stack>
         <Divider />
         <Stack flexDirection="row" justifyContent="space-between" alignItems="center">
