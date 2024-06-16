@@ -23,7 +23,7 @@ const Footer = () => {
             <Stack direction="row" alignItems="center" gap="10px">
               <IoLocationOutline size={16} color={COLOR_CODE.PRIMARY_500} />
               <Typography fontSize={14}>
-                488 Tôn Đức Thắng, P. Hòa Khánh Bắc, Q. Liên Chiểu, TP. Đà Nẵng
+                904 Tôn Đức Thắng, P. Hòa Khánh Bắc, Q. Liên Chiểu, TP. Đà Nẵng
               </Typography>
             </Stack>
             <Stack direction="row" alignItems="center" gap="10px">
@@ -58,7 +58,7 @@ const Footer = () => {
         </Stack>
         <Divider sx={{ borderColor: COLOR_CODE.GREY_300 }} />
         <Stack direction="row" justifyContent="center" alignItems="center">
-          <Typography fontSize={14}>&copy; 2023, All rights reserved</Typography>
+          <Typography fontSize={14}>&copy; 2024, All rights reserved</Typography>
         </Stack>
       </Stack>
     </Container>
