@@ -6,7 +6,8 @@ export const MINI_SIDE_BAR_WIDTH = 80;
 
 export const NAVBAR_HEIGHT = 130;
 
-export const SHIPPING_FEE = 10000;
+export const SHIPPING_FEE = 5000;
+export const SHIPPING_FEE_PER_KM = 2000;
 
 export const COMMON_TYPE: Accept = {
   'image/png': ['.png'],

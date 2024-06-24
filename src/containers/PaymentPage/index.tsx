@@ -48,10 +48,11 @@ import { OrderSummary } from './components';
 import { initialOrderFormValues, orderFormValidationSchema } from './helpers';
 import { OrderFormFields, OrderFormFieldsType } from './type';
 import { getDistanceFromLatLonInKm, getLocationByGoogleMap } from '@customerShared';
+import { SHIPPING_FEE, SHIPPING_FEE_PER_KM } from '@appConfig/constants';
 
 const PaymentPage = () => {
   const isMobileScreen = useMediaQuery('(max-width: 767px)');
-  const { stores } = useGetAllStores(); 
+  const { stores } = useGetAllStores();
 
   const navigate = useNavigate();
 
@@ -173,7 +174,7 @@ const PaymentPage = () => {
     getErrorMessage(fieldName, { touched, errors });
 
   const handleCalculateShippingCost = (distance) => {
-    const cost = 5000 + (distance * 2000);
+    const cost = SHIPPING_FEE + (distance * SHIPPING_FEE_PER_KM);
     setShippingCost(Math.ceil(cost));
   };
 
@@ -183,7 +184,7 @@ const PaymentPage = () => {
     if (newAddress !== prevAddress) {
       const store = stores.find((x) => x.id === StoreService.getValue());
       const shippingAddress = await getLocationByGoogleMap(newAddress);
-      const calculatedDistance = getDistanceFromLatLonInKm(store['latitude'],store['longitude'],shippingAddress.lat,shippingAddress.lng);
+      const calculatedDistance = getDistanceFromLatLonInKm(store['latitude'], store['longitude'], shippingAddress.lat, shippingAddress.lng);
       handleCalculateShippingCost(calculatedDistance);
     }
   };
@@ -335,8 +336,8 @@ const PaymentPage = () => {
                     gap={2}
                     sx={{
                       border: `1.5px solid ${values?.paymentMethod === PaymentMethod.COD
-                          ? COLOR_CODE.PRIMARY_500
-                          : COLOR_CODE.GREY_300
+                        ? COLOR_CODE.PRIMARY_500
+                        : COLOR_CODE.GREY_300
                         }`,
                       borderRadius: '20px',
                     }}
@@ -377,8 +378,8 @@ const PaymentPage = () => {
                     gap={2}
                     sx={{
                       border: `1.5px solid ${values?.paymentMethod === PaymentMethod.BANKING
-                          ? COLOR_CODE.PRIMARY_500
-                          : COLOR_CODE.GREY_300
+                        ? COLOR_CODE.PRIMARY_500
+                        : COLOR_CODE.GREY_300
                         }`,
                       borderRadius: '20px',
                     }}
@@ -446,7 +447,7 @@ const PaymentPage = () => {
                 {renderShippingOption()}
                 {renderPaymentOption()}
               </Stack>
-              <OrderSummary isDisabled={isEmpty(cart) || isCartContainOutOfStockProduct} shippingCost={shippingCost}/>
+              <OrderSummary isDisabled={isEmpty(cart) || isCartContainOutOfStockProduct} shippingCost={shippingCost} />
             </Stack>
           </Stack>
         </form>
