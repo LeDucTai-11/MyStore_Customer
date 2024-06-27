@@ -94,7 +94,7 @@ const PaymentPage = () => {
         firstName: profile.firstName,
         lastName: profile.lastName,
         phoneNumber: profile.phone,
-        shippingAddress: profile.address,
+        shippingAddress: '',
       };
     }
     return { ...initialOrderFormValues };
@@ -285,7 +285,7 @@ const PaymentPage = () => {
                     size="small"
                     label="Shipping method"
                     placeholder="Shipping method"
-                    value="Standard shipping (1 - 3 days)"
+                    value="Standard shipping"
                     disabled={isCreatingOrder}
                     readOnly
                     InputProps={{
